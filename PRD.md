@@ -48,6 +48,7 @@ erDiagram
         string image
         string role "user atau admin"
         integer credits "Saldo kredit AI"
+        timestamp subscriptionEndsAt "Batas aktif paket (30 hari)"
     }
 
     transactions {

@@ -8,6 +8,7 @@ import { signUp } from "@/lib/auth-client";
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,18 +26,42 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      setErrorMsg(error.message || "Failed to create account");
+      setErrorMsg(error.message || "Gagal mendaftar");
       setIsLoading(false);
     } else {
-      window.location.href = "/generator";
+      setIsSuccess(true);
+      setIsLoading(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="bg-card/50 backdrop-blur-xl border border-border rounded-3xl p-8 shadow-2xl animate-fade-in-up text-center">
+        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+          <Mail className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-bold mb-4">Cek Terminal Anda!</h2>
+        <p className="text-muted-foreground mb-6">
+          Karena sistem sedang berjalan di Localhost, kami telah mencetak link verifikasi email ke <b>Console Terminal</b> tempat Anda menjalankan server.
+        </p>
+        <p className="text-sm bg-muted/50 p-4 rounded-xl mb-6 border border-border">
+          Silakan buka terminal / command prompt Anda, klik link verifikasi tersebut, lalu klik tombol di bawah untuk login.
+        </p>
+        <Link
+          href="/login"
+          className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium transition-all"
+        >
+          Ke Halaman Login
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card/50 backdrop-blur-xl border border-border rounded-3xl p-8 shadow-2xl animate-fade-in-up">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-2">Create an Account</h1>
-        <p className="text-muted-foreground">Start turning products into viral videos today.</p>
+        <h1 className="text-2xl font-bold mb-2">Buat Akun Baru</h1>
+        <p className="text-muted-foreground">Daftar sekarang dan mulai hasilkan video viral.</p>
       </div>
 
       {errorMsg && (

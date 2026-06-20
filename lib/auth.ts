@@ -20,6 +20,18 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      console.log("\n=================================================");
+      console.log(`[VERIFIKASI EMAIL LOCALHOST]`);
+      console.log(`Halo ${user.name},`);
+      console.log(`Silakan klik link berikut untuk memverifikasi email Anda (${user.email}):`);
+      console.log(`\n👉 ${url}\n`);
+      console.log("=================================================\n");
+    },
   },
   user: {
     additionalFields: {

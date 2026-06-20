@@ -38,6 +38,7 @@ type HistoryItem = {
 export default function GeneratorPage() {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [result, setResult] = useState<string | null>(null);
   const [parsedResult, setParsedResult] = useState<ParsedResult | null>(null);
   const [activeTab, setActiveTab] = useState<
@@ -59,6 +60,23 @@ export default function GeneratorPage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      setLoadingProgress(0);
+      interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 95) return prev;
+          const increment = Math.random() * (95 - prev) * 0.05 + 0.5;
+          return prev + increment;
+        });
+      }, 200);
+    } else {
+      setLoadingProgress(100);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
 
   const fetchHistory = async () => {
     setIsLoadingHistory(true);
@@ -316,20 +334,17 @@ export default function GeneratorPage() {
   const readingTimeSecs = Math.ceil(wordCount / 3.3);
 
   return (
-    <div className="min-h-full lg:h-full flex flex-col lg:flex-row gap-8 animate-fade-in-up">
-      {/* Left Column - Input Form */}
-      <div className="w-full lg:w-1/2 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar pb-8">
-        {errorMsg && (
-          <div className="bg-destructive/10 border border-destructive/20 text-destructive p-4 rounded-xl text-sm font-medium">
-            {errorMsg}
-          </div>
-        )}
+    <div className="pb-12 animate-fade-in-up max-w-[900px] mx-auto w-full">
+      <h1 className="text-3xl font-bold mb-6">Generator Naskah</h1>
+      
+      {errorMsg && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive p-4 rounded-xl text-sm font-medium mb-6">
+          {errorMsg}
+        </div>
+      )}
 
-        <form
-          onSubmit={handleGenerate}
-          className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-6 shadow-lg flex-1"
-        >
-          <div className="space-y-6">
+      <form onSubmit={handleGenerate} className="mb-12">
+        <div className="space-y-6">
             {/* 1. SUMBER PRODUK */}
             <div className="space-y-4">
               <label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -446,7 +461,7 @@ export default function GeneratorPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
               {/* 2. GAYA BAHASA */}
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
@@ -595,12 +610,9 @@ export default function GeneratorPage() {
             </button>
           </div>
         </form>
-      </div>
 
-      {/* Right Column - Result Area & History */}
-      <div className="w-full lg:w-1/2 flex flex-col h-full pb-8 gap-6">
-        {/* Result Area */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-6 shadow-lg flex flex-col relative overflow-hidden flex-shrink-0 min-h-[400px]">
+      {/* Result Area */}
+      <div className="mb-12 relative">
           {/* Header */}
           <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
             <h2 className="text-xl font-bold flex items-center gap-2">
@@ -638,23 +650,40 @@ export default function GeneratorPage() {
           {/* Content Area */}
           <div className="flex-1 relative flex flex-col">
             {!result && !isGenerating && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-50">
+              <div className="flex flex-col items-center justify-center text-center opacity-50 min-h-[300px] border-2 border-dashed border-border rounded-xl p-8 mt-4">
                 <Sparkles className="w-12 h-12 mb-4 text-muted-foreground" />
                 <p className="text-lg font-medium">
                   Naskah AI akan muncul di sini
                 </p>
                 <p className="text-sm">
-                  Isi form di samping dan klik generate untuk memulai.
+                  Isi form di atas dan klik generate untuk memulai.
                 </p>
               </div>
             )}
 
             {isGenerating && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-card/80 backdrop-blur-sm z-10 rounded-xl">
-                <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-                <p className="text-lg font-medium animate-pulse text-primary">
-                  Meracik Naskah & Caption...
-                </p>
+              <div className="flex flex-col items-center justify-center z-10 min-h-[300px] mt-4 p-8">
+                <div className="w-full max-w-md px-6 text-center">
+                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 animate-bounce">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Meracik Naskah AI...</h3>
+                  <p className="text-muted-foreground text-sm mb-8">
+                    Menganalisis produk, merancang hook, dan menyusun copywriting yang mematikan.
+                  </p>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full h-3 bg-muted rounded-full overflow-hidden mb-3 relative">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-primary transition-all duration-300 ease-out rounded-full"
+                      style={{ width: `${loadingProgress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-xs font-bold text-primary">
+                    <span>Sedang memproses...</span>
+                    <span>{Math.round(loadingProgress)}%</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -703,7 +732,7 @@ export default function GeneratorPage() {
         </div>
 
         {/* History Area */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-6 shadow-lg flex-1 flex flex-col min-h-[300px]">
+        <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
@@ -766,7 +795,6 @@ export default function GeneratorPage() {
             )}
           </div>
         </div>
-      </div>
 
       {/* Topup Modal */}
       {showTopupModal && (

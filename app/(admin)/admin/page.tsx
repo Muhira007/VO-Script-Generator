@@ -103,7 +103,7 @@ export default async function AdminOverviewPage() {
         <p className="text-muted-foreground">High-level metrics and system status.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           const isAction = stat.title === "Pending Approvals" && pendingApprovals > 0;
@@ -130,8 +130,8 @@ export default async function AdminOverviewPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-6 shadow-sm min-h-[400px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-3xl p-6 shadow-sm min-h-[400px]">
           <h3 className="font-semibold text-lg mb-4">Revenue Overview</h3>
           <div className="flex items-center justify-center h-full text-muted-foreground">
             Chart Placeholder

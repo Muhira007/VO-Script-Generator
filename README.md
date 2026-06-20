@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 VOGen.ai - VO & Script Generator SaaS
 
-## Getting Started
+VOGen.ai adalah sebuah aplikasi *Software as a Service* (SaaS) revolusioner yang dirancang khusus untuk para konten kreator dan affiliator (Shopee/TikTok). Aplikasi ini secara otomatis mengekstrak detail produk dari link apa pun, lalu menggunakan kecerdasan buatan (AI) untuk meracik naskah video pendek (Shorts/Reels/TikTok) yang memicu konversi (*highly converting*) dan menghasilkan sulih suara (*Voiceover*) secara instan.
 
-First, run the development server:
+## 🌟 Fitur Unggulan
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **1-Klik Auto-Scraping:** Cukup tempelkan *link* produk (Shopee, TikTok, dll), biarkan sistem yang mengekstrak informasi, judul, dan detail produknya.
+- **Generator Naskah Berbasis AI (Gemini & DeepSeek):** Meracik naskah dengan kerangka *Marketing 4.0* (Hooks anti-skip, Storytelling, Hard-Selling) tanpa batas jumlah karakter yang kaku.
+- **Arahan Visual (B-Roll):** Tidak hanya teks naskah, AI juga memberikan saran pengambilan adegan video/kamera untuk setiap bait narasi.
+- **Durasi Dinamis:** Pilih durasi target Anda (15s, 30s, 60s, 90s), dan AI akan menyesuaikan panjang naskahnya secara presisi.
+- **Pembayaran Terintegrasi (Midtrans & Manual):** Top-up *credit* dengan mudah menggunakan QRIS (otomatis) atau transfer manual (menunggu persetujuan admin).
+- **Masa Aktif Paket 30 Hari:** Model bisnis prabayar berlangganan yang adil dan *familiar* bagi pengguna Indonesia.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack Utama
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework:** Next.js 16 (App Router)
+- **Bahasa:** TypeScript
+- **Styling:** Tailwind CSS 4 + Lucide React
+- **Database:** PostgreSQL (via Drizzle ORM)
+- **Autentikasi:** Better Auth (Mendukung Email/Password & Verifikasi)
+- **Kecerdasan Buatan (AI):** Google Gemini (`gemini-3.5-flash`) & DeepSeek (`deepseek-v4-flash`)
+- **Pembayaran:** Midtrans Node.js SDK
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Panduan Instalasi Lokal
 
-## Learn More
+1. **Kloning Repositori:**
+   ```bash
+   git clone https://github.com/Muhira007/VO-Script-Generator.git
+   cd VO-Script-Generator
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Instalasi Dependensi:**
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Konfigurasi Environment:**
+   Buat file `.env` di *root directory* dan isi dengan variabel berikut:
+   ```env
+   DATABASE_URL=postgresql://user:password@localhost:5432/namadatabase
+   BETTER_AUTH_SECRET=rahasia_auth_anda
+   NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   GOOGLE_GEMINI_API_KEY=api_key_gemini_anda
+   DEEPSEEK_API_KEY=api_key_deepseek_anda
 
-## Deploy on Vercel
+   MIDTRANS_IS_PRODUCTION=false
+   MIDTRANS_SERVER_KEY=server_key_midtrans_anda
+   MIDTRANS_CLIENT_KEY=client_key_midtrans_anda
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Migrasi Database:**
+   ```bash
+   npm run db:push
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. **Jalankan Aplikasi (Development):**
+   ```bash
+   npm run dev
+   ```
+   Aplikasi akan berjalan di `http://localhost:3000`.
+
+## 📜 Lisensi & Pengembang
+
+Dikembangkan oleh **Muhira007** (Kang Demuh).
+Proyek ini dibuat sebagai portofolio dan dasar implementasi *SaaS AI Content Generator*.

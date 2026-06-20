@@ -152,3 +152,4 @@ flowchart TD
 1. **Perbaikan Durasi AI:** Logika batasan jumlah karakter kaku (*strict*) telah dilepas. AI kini diberikan rentang target kata (misalnya 230-260 kata untuk 90 detik) agar naskah promosi mengalir dengan semangat tanpa terpotong.
 2. **Context7 & GitHub Terpasang:** Proyek telah berhasil di-push ke GitHub *origin*, dan `agy` CLI sudah dilengkapi dengan Context7 MCP dan server resmi GitHub MCP.
 3. **Penyimpanan (Storage):** Bukti transfer manual masih disimpan di sistem lokal (`public/uploads/`). Disarankan menggunakan penyimpanan *cloud* seperti Supabase Storage atau AWS S3 untuk fase produksi.
+4. **Sistem Langganan 30 Hari:** Mengganti model *Pay-As-You-Go* murni menjadi paket berbatas waktu 30 hari. Telah menambahkan kolom `subscription_ends_at` ke database `users` untuk melacak kedaluwarsa masa aktif.

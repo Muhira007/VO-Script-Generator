@@ -19,6 +19,7 @@ export const user = pgTable("user", {
   // Custom fields for SaaS
   role: text("role").default("user").notNull(), // "user" | "admin"
   credits: integer("credits").default(0).notNull(),
+  subscriptionEndsAt: timestamp("subscription_ends_at"), // 30-day plan expiry
 });
 
 export const session = pgTable(

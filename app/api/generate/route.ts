@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const sourceTab = formData.get("sourceTab") as string;
     const style = formData.get("style") as string;
-    const tone = formData.get("tone") as string;
-    const audience = formData.get("audience") as string;
+    const audience = formData.get("targetAudience") as string;
     const duration = formData.get("duration") as string;
     const bRoll = formData.get("bRoll") === "true";
     const roleplay = formData.get("roleplay") === "true";
@@ -68,21 +67,23 @@ export async function POST(request: NextRequest) {
       {} as Record<string, string>,
     );
 
-    const aiProvider = settingsObj.AI_PROVIDER || "gemini";
+    let aiProvider = settingsObj.AI_PROVIDER || "gemini";
     console.log(`[Generate] Using AI provider: ${aiProvider}`);
+
+    // Fallback to Gemini for Image inputs because DeepSeek does not support vision
+    if (aiProvider === "deepseek" && sourceTab === "image") {
+      console.log("[Generate] Image source detected, falling back to Gemini because DeepSeek is text-only");
+      aiProvider = "gemini";
+    }
 
     let geminiApiKey = "";
     let deepseekApiKey = "";
 
-    if (aiProvider === "gemini" || !aiProvider) {
-      const geminiDbKey = settingsObj.GEMINI_API_KEY || "";
-      geminiApiKey = geminiDbKey || process.env.GOOGLE_GEMINI_API_KEY || "";
-    }
+    const geminiDbKey = settingsObj.GEMINI_API_KEY || "";
+    geminiApiKey = geminiDbKey || process.env.GOOGLE_GEMINI_API_KEY || "";
 
-    if (aiProvider === "deepseek") {
-      const deepseekDbKey = settingsObj.DEEPSEEK_API_KEY || "";
-      deepseekApiKey = deepseekDbKey || process.env.DEEPSEEK_API_KEY || "";
-    }
+    const deepseekDbKey = settingsObj.DEEPSEEK_API_KEY || "";
+    deepseekApiKey = deepseekDbKey || process.env.DEEPSEEK_API_KEY || "";
 
     if (aiProvider === "gemini" && !geminiApiKey) {
       return NextResponse.json(
@@ -212,12 +213,18 @@ PENTING: Output HARUS berupa JSON object dengan struktur berikut (tidak boleh ad
 }
 - versionA: Kumpulan paragraf naskah narasi versi Hard-Selling / To The Point.
 - versionB: Kumpulan paragraf naskah narasi versi Storytelling / Emosional.
-- caption: Kumpulan paragraf caption media sosial lengkap dengan hashtag populer.
+- caption: Kumpulan paragraf caption media sosial lengkap dengan hashtag populer (MAKSIMAL TOTAL 30 KATA UNTUK SELURUH CAPTION).
 Setiap item dalam array adalah satu paragraf utuh (bukan kalimat terpisah). Pastikan JSON valid dan tidak terpotong.
 
 ATURAN GAYA BAHASA & AUDIENS:
-- Gaya Bahasa: ${tone || "Casual & Menarik"}
+- Gaya Bahasa: ${style || "Casual & Menarik"}
 - Target Audiens: ${audience || "Umum"}
+
+ATURAN KONTEN (SANGAT PENTING):
+- DILARANG KERAS menyebutkan nama marketplace (seperti Shopee, Tokopedia, Lazada, TikTok Shop, dll).
+- DILARANG KERAS menyebutkan nama media sosial atau singkatannya (seperti Instagram, IG, Facebook, FB, YouTube, YT, TikTok, X, Twitter, dll).
+- DILARANG KERAS menggunakan frasa "Klik link di bio!" ataupun "keranjang kuning".
+- Sebagai instruksi Call to Action (CTA) khusus afiliator, gunakan kalimat seperti: "cek keranjang di bawah video ini" atau "klik tautan di bawah". DILARANG menggunakan kata "toko kami" atau sejenisnya karena pengguna adalah afiliator, bukan pemilik toko.
 
 ATURAN STRUKTUR TEKS:
 - FORMAT PARAGRAF: Pecah naskah menjadi beberapa paragraf pendek (maksimal 2-3 kalimat per paragraf). Karena output AI berupa ARRAY OF STRINGS, masukkan setiap paragraf sebagai elemen/item array yang terpisah. Jangan menumpuk teks.
@@ -365,7 +372,7 @@ ${durationGuidance}`;
                       type: "ARRAY",
                       items: { type: "STRING" },
                       description:
-                        "Kumpulan paragraf caption media sosial yang relevan lengkap dengan hashtag populer yang cocok. 1 item array = 1 paragraf.",
+                        "Kumpulan paragraf caption media sosial yang relevan lengkap dengan hashtag populer yang cocok. MAKSIMAL TOTAL 30 KATA. 1 item array = 1 paragraf.",
                     },
                   },
                   required: ["versionA", "versionB", "caption"],

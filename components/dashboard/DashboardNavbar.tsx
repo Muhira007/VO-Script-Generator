@@ -69,9 +69,9 @@ export default function DashboardNavbar() {
         </button>
         <div className="hidden md:block animate-fade-in-up">
           <h2 className="text-2xl font-extrabold tracking-tight">
-            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Creator!</span> 👋
+            Selamat datang kembali, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">{session?.user?.name || "Kreator"}!</span> 👋
           </h2>
-          <p className="text-sm font-medium text-muted-foreground mt-0.5">Ready to generate your next viral video?</p>
+          <p className="text-sm font-medium text-muted-foreground mt-0.5">Siap meracik video viral Anda selanjutnya?</p>
         </div>
         <div className="md:hidden flex items-center gap-2">
           <div className="bg-primary/10 p-1.5 rounded-lg">
