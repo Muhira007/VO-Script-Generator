@@ -1,140 +1,142 @@
-# Product Requirements Document (PRD)
-**Project Name:** VO & Script Generator SaaS
-**Type:** Web Application (SaaS)
-**Description:** Aplikasi generator naskah video TikTok/Reels berbasis AI dengan sistem kredit prabayar. Memiliki fitur scraping URL produk untuk konteks AI, serta sistem pembayaran otomatis (Midtrans QRIS) dan manual.
+# 🚀 Dokumen Kebutuhan Produk (PRD)
+
+**Nama Proyek:** VO & Script Generator SaaS  
+**Jenis:** Web Application (SaaS)  
+**Deskripsi:** Aplikasi pembuat naskah video TikTok/Reels berbasis AI dengan sistem *credit* prabayar. Memiliki fitur *scraping* URL produk sebagai konteks AI, serta sistem pembayaran otomatis (Midtrans QRIS) dan manual.
 
 ---
 
-## 1. Rules & Instructions for AI Agent
-As an AI coding agent, strictly follow these rules when developing this project:
-1. **Tech Stack Strictness:** Only use the technologies listed in the "Tech Stack" section. Do not introduce alternatives without user permission.
-2. **App Router:** Strictly use Next.js App Router (`app/` directory). Do not use the Pages router.
-3. **TypeScript:** Write all logic in TypeScript (`.ts`, `.tsx`). Define proper types/interfaces.
-4. **Step-by-Step Execution:** Do not attempt to build the entire app in one prompt. Follow the "Implementation Phases" sequentially. Always ask the user for confirmation before moving to the next phase.
-5. **UI/UX:** Replicate the provided dark mode UI design using Tailwind CSS. Use clean, modern component structures.
+## 1. Aturan & Instruksi Pengembangan
+
+| Aturan | Deskripsi |
+|---|---|
+| **Keketatan Tech Stack** | Hanya gunakan teknologi yang tercantum di bagian "Tech Stack". |
+| **App Router** | Wajib menggunakan Next.js App Router (`app/` directory), bukan Pages router. |
+| **TypeScript** | Seluruh logika ditulis dalam TypeScript (`.ts`, `.tsx`) dengan tipe data yang jelas. |
+| **Pengerjaan Bertahap** | Kerjakan per fase secara berurutan, tidak sekaligus. |
+| **UI/UX** | Replikasi desain *dark mode* referensi menggunakan Tailwind CSS dengan komponen yang bersih. |
 
 ---
 
-## 2. Tech Stack Definition
-*   **Framework:** Next.js (App Router)
-*   **Language:** TypeScript
-*   **Styling:** Tailwind CSS + Lucide React (Icons)
-*   **Database:** PostgreSQL
-*   **ORM:** Drizzle ORM (`drizzle-orm`, `drizzle-kit`)
-*   **Authentication:** Better Auth (`better-auth`) with Drizzle adapter.
-*   **AI Providers:** Google Gemini API + DeepSeek API (selectable via Admin Settings).
-*   **Web Scraping:** Cheerio (`cheerio`) for parsing product URLs.
-*   **Payment Gateway:** Midtrans Node.js SDK (`midtrans-client`).
-*   **Storage:** Local filesystem (`public/uploads/`) for manual transfer proof upload.
+## 2. Tech Stack
+
+| Kategori | Teknologi |
+|---|---|
+| **Framework** | Next.js (App Router) |
+| **Bahasa** | TypeScript |
+| **Styling** | Tailwind CSS + Lucide React (Icons) |
+| **Database** | PostgreSQL |
+| **ORM** | Drizzle ORM (`drizzle-orm`, `drizzle-kit`) |
+| **Autentikasi** | Better Auth (`better-auth`) dengan Drizzle adapter |
+| **Penyedia AI** | Google Gemini API + DeepSeek API |
+| **Web Scraping** | Cheerio (`cheerio`) untuk *parsing* URL produk |
+| **Pembayaran** | Midtrans Node.js SDK (`midtrans-client`) |
+| **Penyimpanan** | Local filesystem (`public/uploads/`) untuk bukti transfer manual |
+| **Integrasi Eksternal** | Context7 MCP Server (untuk manajemen *library/docs*) |
 
 ---
 
-## 3. Database Schema (Drizzle ORM)
-The database must include the following core tables:
+## 3. Skema Database
 
-### `users` table (Extended from Better Auth)
-*   `id` (text, pk)
-*   `name` (text)
-*   `email` (text, unique)
-*   `emailVerified` (boolean)
-*   `image` (text, nullable)
-*   `role` (text, default: "user") -> Can be "user" or "admin"
-*   `credits` (integer, default: 0) -> Tracks available AI generation credits
-*   *(Standard Better Auth timestamps)*
+```mermaid
+erDiagram
+    users {
+        string id PK
+        string name
+        string email UK
+        boolean emailVerified
+        string image
+        string role "user atau admin"
+        integer credits "Saldo kredit AI"
+    }
 
-### `transactions` table (Custom for SaaS)
-*   `id` (text, pk)
-*   `userId` (text, fk -> users.id)
-*   `amount` (integer) -> e.g., 50000
-*   `creditsAdded` (integer) -> e.g., 100
-*   `method` (text) -> "midtrans_qris" or "manual_transfer"
-*   `status` (text) -> "pending", "success", "failed"
-*   `proofUrl` (text, nullable) -> Link to uploaded receipt (for manual)
-*   `createdAt` (timestamp)
+    transactions {
+        string id PK
+        string userId FK
+        integer amount
+        integer creditsAdded
+        string method "midtrans_qris atau manual_transfer"
+        string status "pending, success, failed"
+        string proofUrl "Link gambar bukti"
+        timestamp createdAt
+    }
 
-*(Include standard Better Auth tables: `session`, `account`, `verification`).*
+    generation_history {
+        string id PK
+        string userId FK
+        string sourceType "image, url, name"
+        string productName
+        string content "Naskah AI"
+        integer inputTokens
+        integer outputTokens
+        timestamp createdAt
+    }
 
-### `generation_history` table (Custom for tracking)
-*   `id` (text, pk, auto UUID)
-*   `userId` (text, fk -> users.id)
-*   `sourceType` (text) -> "image", "url", "name"
-*   `productName` (text, nullable)
-*   `content` (text) -> The generated AI script
-*   `inputTokens` (integer)
-*   `outputTokens` (integer)
-*   `createdAt` (timestamp)
+    app_settings {
+        string key PK
+        string value
+    }
 
-### `app_settings` table (Key-Value config)
-*   `key` (text, pk)
-*   `value` (text)
-
----
-
-## 4. Authentication & Role Management
-*   **Method:** Email and Password via Better Auth.
-*   **Seed Data Requirement:** Must create a seeding script to inject two dummy accounts on initialization:
-    *   **User:** `email`: user@generator.com | `password`: @Pasword123 | `role`: user | `credits`: 100
-    *   **Admin:** `email`: admin@generator.com | `password`: @Pasword123 | `role`: admin | `credits`: 9999
-*   **Middleware Logic:**
-    *   `/generator` -> Requires authenticated user.
-    *   `/admin` -> Requires authenticated user AND `role === 'admin'`.
+    users ||--o{ transactions : "melakukan"
+    users ||--o{ generation_history : "menghasilkan"
+```
+*(Catatan: Tabel standar dari Better Auth seperti `session`, `account`, dan `verification` juga diimplementasikan).*
 
 ---
 
-## 5. Core Features & App Flow
+## 4. Alur Kerja Aplikasi (Workflow)
 
-### A. AI Generator Module (`/generator`)
-1. **Input Handling:** UI includes inputs for Product URL, Tone/Style, Target Audience, Video Duration, and toggles (B-Roll, Q&A, Hook).
-2. **Pre-generation Validation:** Before executing, check if `user.credits > 0`. If 0, block generation and prompt user to top-up.
-3. **URL Scraping API:** Send the Product URL to an internal Next.js API route. Use Cheerio to fetch `<title>` and `<meta name="description">` to get product context.
-4. **Prompt Engineering:** Combine UI inputs and scraped product data into a structured system prompt.
-5. **AI API Call:** Send the prompt to the AI provider.
-6. **Post-generation:** Receive AI text, display it to the UI (with a copy button), and deduct `1` from `user.credits` in the database.
+```mermaid
+flowchart TD
+    A[Pengguna] --> B{Punya Akun?}
+    B -- Belum --> C[Register]
+    B -- Sudah --> D[Login]
+    C --> E[Dashboard]
+    D --> E
 
-### B. Payment & Subscription Module
-1. **Pricing Page UI:** Show package options (e.g., 50 Credits for Rp 25.000).
-2. **Midtrans QRIS Flow (Auto):**
-    *   User selects "Midtrans".
-    *   Backend calls Midtrans Snap API.
-    *   Frontend shows Midtrans Pop-up/QR Code.
-    *   **Webhook (`/api/webhooks/midtrans`):** Listens for payment success. Automatically updates `transactions.status` to "success" and increments `users.credits`.
-3. **Manual Transfer Flow:**
-    *   User selects "Manual".
-    *   UI shows bank details.
-    *   User uploads proof image.
-    *   Create transaction with `status: pending` and save `proofUrl`.
+    E --> F[Pilih Menu]
+    F --> G[Generator AI]
+    F --> H[Top Up Credit]
+    
+    G --> I{Cek Credit > 0?}
+    I -- Ya --> J[Pilih Durasi & Masukkan Prompt]
+    J --> K[AI Memproses Naskah]
+    K --> L[Credit -1 & Tampilkan Hasil]
+    I -- Tidak --> H
+    
+    H --> M{Metode Pembayaran?}
+    M -- Midtrans --> N[QRIS Muncul]
+    N --> O[Webhook Konfirmasi]
+    O --> P[Credit Bertambah]
+    
+    M -- Manual --> Q[Upload Bukti Transfer]
+    Q --> R[Admin Menyetujui]
+    R --> P
+```
 
-### C. Admin Dashboard Module (`/admin`)
-1. **Transaction Management:** View all transactions.
-2. **Manual Approval Action:** Admin can click "Approve" on pending manual transactions. This action updates transaction status and increments the specific user's credits.
-3. **User Management:** Admin can manually add/deduct credits for any user.
+---
+
+## 5. Fitur Inti
+
+### A. Modul Generator AI (`/generator`)
+1. **Input Pengguna:** Menyediakan input URL Produk/Nama, Nada Bahasa (*Tone*), Target Audiens, dan **Durasi Video** (15 detik, 30 detik, 60 detik, 90 detik).
+2. **Fleksibilitas Naskah:** Parameter durasi diubah menjadi rentang jumlah kata dinamis (tanpa batasan karakter kaku) agar AI lebih kreatif dan natural.
+3. **Web Scraping:** Melakukan *fetch* URL target menggunakan Cheerio untuk mengambil konteks `<title>` dan `<meta description>`.
+4. **Validasi Saldo:** Memastikan `users.credits > 0` sebelum `fetch` ke API AI. Jika berhasil, saldo dikurangi 1.
+
+### B. Modul Pembayaran & Langganan
+1. **Midtrans QRIS (Otomatis):** Pengguna memindai QRIS, lalu *webhook* (`/api/webhooks/midtrans`) secara otomatis mengkonfirmasi transaksi dan menambah *credit*.
+2. **Transfer Manual:** Pengguna mengunggah bukti bayar, transaksi berstatus *pending* hingga divalidasi admin.
+
+### C. Modul Dashboard Admin (`/admin`)
+1. **Manajemen Transaksi:** Melihat seluruh transaksi dan menyetujui transaksi manual.
+2. **Manajemen Pengguna:** Menambah/mengurangi *credit* pengguna secara bebas.
+3. **Pengaturan Sistem:** Mengganti *provider* AI (Gemini atau DeepSeek) dan mengatur API Key.
 
 ---
 
-## 6. Implementation Phases for AI Agent
-
-**Phase 1: Project Setup & Auth Foundation**
-*   Initialize Next.js App Router with Tailwind and TypeScript.
-*   Setup Drizzle ORM and connect to PostgreSQL.
-*   Setup Better Auth with standard tables + custom columns (`role`, `credits`).
-*   Create the database seeding script for dummy user and admin.
-*   Implement Next.js middleware for route protection.
-
-**Phase 2: UI Slicing (Frontend)**
-*   Build the main Dashboard Layout (Sidebar/Navbar).
-*   Slice the Generator UI (Input forms, dropdowns, toggles, text result area) matching the dark mode reference.
-*   Slice the Pricing/Top-up UI.
-
-**Phase 3: AI Engine & Scraping (Backend logic)**
-*   Build API route for Cheerio web scraping.
-*   Build API route for AI Generation.
-*   Implement the credit deduction logic within the AI API route.
-*   Connect Frontend Generator UI to the Backend APIs.
-
-**Phase 4: Payment Gateway & Admin**
-*   Integrate Midtrans SDK and create the checkout API & Webhook handler.
-*   Implement file upload for manual payments.
-*   Build Admin Dashboard UI and backend actions for approving manual payments.
-
----
-**End of PRD**
+## 6. Fase Implementasi
+- **Fase 1:** Persiapan Proyek & Autentikasi (Selesai)
+- **Fase 2:** *Slicing* UI/Frontend (Selesai)
+- **Fase 3:** Mesin AI & Scraping (Selesai, termasuk perbaikan parameter durasi dan integrasi Context7 MCP)
+- **Fase 4:** Payment Gateway & Admin (Selesai)
