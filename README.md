@@ -1,6 +1,12 @@
-# 🚀 VOGen.ai - VO & Script Generator SaaS
+# 🚀 ScriptFlow - AI Script & Voiceover Generator SaaS
 
-VOGen.ai adalah sebuah aplikasi *Software as a Service* (SaaS) revolusioner yang dirancang khusus untuk para konten kreator dan affiliator (Shopee/TikTok). Aplikasi ini secara otomatis mengekstrak detail produk dari link apa pun, lalu menggunakan kecerdasan buatan (AI) untuk meracik naskah video pendek (Shorts/Reels/TikTok) yang memicu konversi (*highly converting*) dan menghasilkan sulih suara (*Voiceover*) secara instan.
+**ScriptFlow** adalah platform *Software as a Service* (SaaS) revolusioner yang dirancang khusus untuk para konten kreator, *marketer*, dan *affiliator* (Shopee, TikTok, dll) yang ingin meningkatkan produktivitas dan kualitas konten mereka.
+
+## 📖 Tentang Produk
+
+Dalam era video pendek yang bergerak sangat cepat, memiliki naskah yang menarik (*hook* yang kuat) dan panduan visual yang jelas adalah kunci keberhasilan konversi. Namun, meriset produk dan menulis naskah dari nol memakan banyak waktu.
+
+**ScriptFlow** hadir sebagai solusi terpadu (*all-in-one solution*). Cukup tempelkan tautan produk, sistem akan secara otomatis mengekstrak informasi penting, lalu menggunakan model AI canggih (Gemini & DeepSeek) untuk meracik naskah video (TikTok, Instagram Reels, YouTube Shorts) yang siap *shooting*. ScriptFlow memastikan setiap detik konten Anda optimal dengan arahan *B-Roll* dinamis dan pilihan durasi yang presisi.
 
 ## 🌟 Fitur Unggulan
 
